@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef WINDOWS 
+#define CLEAR 'cls'
+#else 
+#define CLEAR "clear"
+#endif
 
 typedef struct{
     char nomeDoProduto[20];
@@ -16,7 +21,36 @@ void inserirSaldoDoCliente(float *saldo){
         printf("%d. R$%.2f\n", i + 1, notas[i]);
     }
 
-    *saldo += 10.0f;
+    printf("Escolha uma nota para inserir ou zero para sair da maquina: ");
+    int escolha;
+    scanf("%d", &escolha);
+
+    if(escolha == 0){
+        return;
+    }else if(escolha >= 1 && escolha <= qtdDeNotas){
+        *saldo += notas[escolha - 1];
+    }else{
+        printf("Valor invalido!\n");
+    }
+    
+}
+
+void exibirMenuDeProdutos(Produto *maquina[], int tamanho,float saldo){
+    system(CLEAR);
+    printf("=====maquina de vendas de comida=====\n");
+    printf("Saldo atual R$%.2f\n\n", saldo);
+
+    for(int i = 0; i < tamanho; i++){
+        printf("%d. %s\t- R$%.2f (em estoque: %d)\n", i + 1,
+             maquina[i]->nomeDoProduto, maquina[i]->precoDoProduto, maquina[i]->estoqueDoProduto);
+    }
+   
+    printf("\n0. sair\n");
+}
+
+void vender(Produto* produto, float * saldo){
+    produto->estoqueDoProduto--;
+    *saldo -= produto->precoDoProduto;
 }
 
 int main(){
@@ -39,10 +73,17 @@ int main(){
 
     int opcao = -1;
     while (opcao != 0) {
+        system(CLEAR);
         inserirSaldoDoCliente(&saldo);
+        exibirMenuDeProdutos(maquina, QUANTIDADE_DE_PRODUTOS, saldo);
 
-        printf("Saldo atual R$%.2f\n", saldo);
         scanf("%d", &opcao);
+        if(opcao == 0){
+            break;
+        }else if(opcao >= 1 && opcao <= QUANTIDADE_DE_PRODUTOS){
+            vender(maquina[opcao - 1], &saldo);
+        }
+        
     } 
 
     return 0;
